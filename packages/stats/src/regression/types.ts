@@ -18,7 +18,7 @@ export interface RegressionSuccess {
    * for a dependent variable that's explained by an independent variable or variables in a regression model.
    * Values range from 0 to 1, with higher values indicating a better fit.
    */
-  rSquared?: number;
+  rSquared: number;
   /**
    * The method used for the statistical calculation, providing context for interpretation.
    */
@@ -34,7 +34,33 @@ export interface RegressionSuccess {
    * based on the calculated linear regression equation (y = mx + b).
    */
   predict: (x: number) => PredictedPoint;
+  /**
+   * The p-value associated with the slope (m) of the regression line.
+   * Indicates the statistical significance of the linear relationship between X and Y.
+   * A small p-value (e.g., < 0.05) suggests a statistically significant trend.
+   * Null if it could not be computed (e.g., due to zero variance or insufficient data for SE_m calculation).
+   */
+  pValueM?: number | null;
+  /**
+   * The standard error of the slope (m). It measures the accuracy of the slope coefficient,
+   * indicating the average distance that the estimated slope is from the true population slope.
+   * Null if it could not be computed.
+   */
+  seM?: number | null;
+  /**
+   * The t-statistic for the slope (m). It is calculated as m / seM and is used to determine
+   * the p-value and statistical significance of the slope.
+   * Null if it could not be computed.
+   */
+  tM?: number | null;
+  /**
+   * The degrees of freedom for the regression model's error term.
+   * Used in conjunction with the t-statistic to determine p-values and confidence intervals.
+   * Null if it could not be computed or is not applicable.
+   */
+  df?: number | null;
 }
+
 
 /**
  * Interface for the error output of regression methods.
