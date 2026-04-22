@@ -1,11 +1,11 @@
-import type { RegressionSuccess } from "@facta/stats";
-import type { GeneratedInsight } from "src/types";
+import type { RegressionSuccess } from "@statili/stats";
+import type { GeneratedInsight } from "../types";
 
 /**
  * @function regressionSummary
  * @description Generates a natural language summary of the linear regression trend.
  * @param {LinearInsightGenerationOptions} options - Configuration options for insight generation.
- * @param {RegressionSuccess} result - The successful result from @facta/stats linear regression.
+ * @param {RegressionSuccess} result - The successful result from @statili/stats linear regression.
  * @returns {GeneratedInsight} A descriptive insight about the trend.
  */
 export const regressionSummary = (result: RegressionSuccess): GeneratedInsight => {

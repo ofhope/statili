@@ -1,6 +1,7 @@
 {
-    "name": "@facta/stats",
+    "name": "@statili/stats",
     "version": "0.0.1",
+    "license": "MIT",
     "type": "module",
     "main": "./dist/stats.js",
     "types": "./dist/stats.d.ts",
@@ -20,7 +21,7 @@
         "clean": "rimraf dist"
     },
     "dependencies": {
-        "@facta/fp": "*"
+        "@statili/fp": "*"
     },
     "devDependencies": {
         "vite": "^5.0.0",

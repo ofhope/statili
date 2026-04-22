@@ -5,12 +5,12 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'src/index.ts',
-      name: 'FactaStats',
+      name: 'statiliStats',
       fileName: 'stats',
       formats: ['es']
     },
     rollupOptions: {
-      external: ['@facta/fp'],
+      external: ['@statili/fp'],
     },
     sourcemap: true,
     minify: false,

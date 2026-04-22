@@ -89,7 +89,7 @@ export function pipe<F extends readonly [(...args: any[]) => any, ...Array<(arg:
  * @doc-summary Composes functions from left to right for a data transformation pipeline.
  * @doc-usecase Ideal for statistical pipelines where data needs to be cleaned, transformed, and then analyzed
  * in a series of distinct steps. For example, a pipeline could be `pipe(normalizeData, removeOutliers, calculateMean)`.
- * It's also useful for creating composite statistical methods for `@facta/forge` where the output of
+ * It's also useful for creating composite statistical methods for `@statili/forge` where the output of
  * one function (e.g., `zScoreOutlier`) is processed by another before being passed to the visualization layer.
  * @doc-insights Promotes a functional, declarative style of programming, making complex data flows more explicit and easier to reason about.
  * It's a fundamental building block for creating reusable and highly composable statistical algorithms.

@@ -1,2 +1,2 @@
 
-export * from './linear';
+export * from './regression/linear';

@@ -29,7 +29,7 @@
     "emitDeclarationOnly": true,
     "sourceMap": true,
     "paths": {
-      "@facta/*": ["packages/*/src"]
+      "@statili/*": ["packages/*/src"]
     }
   }
 }
