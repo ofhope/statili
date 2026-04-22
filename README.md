@@ -1,12 +1,12 @@
-## `@facta`: Robust & Type-Safe Statistical Algorithms for Data Visualization
+## `@statili`: Robust & Type-Safe Statistical Algorithms for Data Visualization
 
-**`@facta` is a collection of robust, type-safe statistical algorithms built in TypeScript, engineered for numerical stability and high-performance. Designed with a functional, data-last API and rich error handling, it provides the precise foundations for deriving actionable insights in modern web applications.**
+**`@statili` is a collection of robust, type-safe statistical algorithms built in TypeScript, engineered for numerical stability and high-performance. Designed with a functional, data-last API and rich error handling, it provides the precise foundations for deriving actionable insights in modern web applications.**
 
 -----
 
 ### 🌟 Core Purpose
 
-In the world of data visualization, reliable and accurate statistical insights are paramount. `@facta` aims to bridge the gap between complex statistical methods and their robust, production-ready implementation in a TypeScript environment. It's built from the ground up to be the trusted statistical engine for deriving meaningful information from your data, specifically tailored for integration into interactive charts and analytical dashboards.
+In the world of data visualization, reliable and accurate statistical insights are paramount. `@statili` aims to bridge the gap between complex statistical methods and their robust, production-ready implementation in a TypeScript environment. It's built from the ground up to be the trusted statistical engine for deriving meaningful information from your data, specifically tailored for integration into interactive charts and analytical dashboards.
 
 ### ✨ Key Features & Highlights
 
@@ -20,20 +20,20 @@ In the world of data visualization, reliable and accurate statistical insights a
 
 ### 📦 Installation
 
-`@facta` is structured as a monorepo containing multiple scoped packages. You can install specific statistical modules as needed:
+`@statili` is structured as a monorepo containing multiple scoped packages. You can install specific statistical modules as needed:
 
 ```bash
-npm install @facta/regression
-# npm install @facta/timeseries
-# npm install @facta/descriptive
+npm install @statili/regression
+# npm install @statili/timeseries
+# npm install @statili/descriptive
 ```
 
 ### 🚀 Usage (Quick Start)
 
-Here's a quick example demonstrating how to use `linearRegression` from `@facta/regression` and handle its results:
+Here's a quick example demonstrating how to use `linearRegression` from `@statili/regression` and handle its results:
 
 ```typescript
-import { linearRegression, type LinearRegressionResult } from '@facta/regression';
+import { linearRegression, type LinearRegressionResult } from '@statili/regression';
 
 // Example 1: Successful regression
 const data1 = [[1, 2], [2, 4], [3, 6], [4, 8]]; // Perfect linear data
@@ -73,11 +73,11 @@ if (!result3.ok) {
 
 ### 🛠️ Monorepo Structure
 
-`@facta` is managed as a monorepo, allowing for shared tooling, consistent development practices, and easy cross-package integration. Each statistical domain (e.g., `regression`, `timeseries`) resides in its own workspace within the repository.
+`@statili` is managed as a monorepo, allowing for shared tooling, consistent development practices, and easy cross-package integration. Each statistical domain (e.g., `regression`, `timeseries`) resides in its own workspace within the repository.
 
 ### 🚦 Error Handling
 
-`@facta` adopts a robust error handling strategy:
+`@statili` adopts a robust error handling strategy:
 
   * **Throwing Errors:** For clear runtime invariants or developer misuse of the API (e.g., passing `null` where a number is strictly expected).
   * **Returning `NaN`:** For mathematically undefined or degenerate numerical results (e.g., a standard deviation of a single point, where the value is indeterminate but the computation itself didn't "fail" due to bad input).
@@ -108,7 +108,7 @@ We welcome contributions\! If you have ideas for new algorithms, improvements to
 
 ### 🔗 Ecosystem Integration
 
-`@facta` is designed to be the foundational statistical engine for higher-level insight generation tools, such as the planned **InsightForge** package, which aims to interpret `facta`'s outputs into user-friendly narratives and visual annotations.
+`@statili` is designed to be the foundational statistical engine for higher-level insight generation tools, such as the planned **InsightForge** package, which aims to interpret `statili`'s outputs into user-friendly narratives and visual annotations.
 
 ### 📄 License
 
