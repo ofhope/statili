@@ -66,3 +66,31 @@ export function rSquared(data: DataPoint[], results: PredictedPoint[]): number {
 export function isValid(value: number): boolean {
   return value !== null && !isNaN(value) && isFinite(value);
 }
+
+/**
+ * Calculate the Root Mean Squared Error (RMSE) between observed and predicted values.
+ * RMSE is expressed in the same units as the dependent variable (Y), making it directly
+ * interpretable: a model with RMSE of 4.2 produces predictions within roughly ±4.2 units on average.
+ *
+ * @param {DataPoint[]} data - Pairs of observed [x, y] values.
+ * @param {PredictedPoint[]} results - Pairs of predicted [x, y] values from the model.
+ * @returns {number} The RMSE value, or NaN if it cannot be calculated (e.g., no valid observations).
+ */
+export function rmse(data: DataPoint[], results: PredictedPoint[]): number {
+  const pairs: Array<[number, number]> = [];
+
+  data.forEach((d, i) => {
+    if (d[1] !== null && results[i] !== undefined) {
+      pairs.push([d[1] as number, results[i][1]]);
+    }
+  });
+
+  if (pairs.length === 0) return NaN;
+
+  const sse = pairs.reduce((accum, [actual, predicted]) => {
+    const residual = actual - predicted;
+    return accum + residual * residual;
+  }, 0);
+
+  return Math.sqrt(sse / pairs.length);
+}

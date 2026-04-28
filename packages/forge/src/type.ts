@@ -1,8 +1,8 @@
 // @facta/forge/types.ts (or a new 'rules' module)
 
-import type { RegressionResult } from "@facta/stats";
+import type { RegressionResult } from "@statili/stats";
 
-// import { StatSuccess } from '@facta/stats'; // General stat success type
+// import { StatSuccess } from '@statili/stats'; // General stat success type
 // import { SpecificInsight } from './types'; // Your deterministic insight types
 
 
@@ -34,9 +34,9 @@ type BaseInsight = {
 
 /**
  * The base structure for a statistical result that an InsightRule can process.
- * This is effectively any of the `ResultSuccess` types from @facta/stats.
+ * This is effectively any of the `ResultSuccess` types from @statili/stats.
  */
-// export type ProcessableStatResult = 'ok'; // Union of all @facta/stats success types
+// export type ProcessableStatResult = 'ok'; // Union of all @statili/stats success types
 
 /**
  * A function that determines if an insight rule's conditions are met.

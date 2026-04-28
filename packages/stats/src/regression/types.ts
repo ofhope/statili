@@ -4,69 +4,85 @@
 export interface RegressionSuccess {
   ok: true;
   /**
-   * The slope (gradient) of the fitted linear regression line.
-   * Represents the change in the dependent variable (Y) for a one-unit change in the independent variable (X).
+   * The slope (gradient) of the fitted regression line.
+   * Represents the change in the dependent variable (Y) for a one-unit change
+   * in the independent variable (X).
    */
-  m: number;
+  slope: number;
   /**
-   * The Y-intercept of the fitted linear regression line.
-   * Represents the expected value of the dependent variable (Y) when the independent variable (X) is zero.
+   * The Y-intercept of the fitted regression line.
+   * Represents the expected value of Y when X is zero.
    */
-  b: number;
+  intercept: number;
   /**
-   * The R-squared value, a statistical measure that represents the proportion of the variance
-   * for a dependent variable that's explained by an independent variable or variables in a regression model.
-   * Values range from 0 to 1, with higher values indicating a better fit.
+   * The coefficient of determination (R²).
+   * Represents the proportion of variance in Y explained by X.
+   * Ranges from 0 (no explanatory power) to 1 (perfect fit).
    */
-  rSquared: number;
+  r2: number;
   /**
-   * The method used for the statistical calculation, providing context for interpretation.
+   * Root Mean Squared Error — the standard deviation of the residuals.
+   * Expressed in the same units as Y, making it directly interpretable:
+   * a model with rmse of 4.2 produces predictions within roughly ±4.2 units on average.
+   */
+  rmse: number;
+  /**
+   * The number of valid data points (n) used to fit the model.
+   * Essential for downstream consumers (e.g. @statili/forge) to generate
+   * appropriate small-sample warnings.
+   */
+  n: number;
+  /**
+   * The statistical method used, providing context for interpretation downstream.
    */
   method: "linear" | "logarithmic" | "exponential" | "power" | "polynomial";
   /**
    * An array of [x, y] points representing the fitted regression line,
-   * generated from the input data points based on the calculated equation.
-   * Useful for directly plotting the regression line on a chart.
+   * generated from the input data points. Useful for directly plotting
+   * the regression line on a chart.
    */
   points: PredictedPoint[];
   /**
-   * A function that takes an x-value and returns its predicted y-value
-   * based on the calculated linear regression equation (y = mx + b).
+   * A function that takes an x-value and returns its predicted [x, y] point
+   * based on the calculated regression equation.
    */
   predict: (x: number) => PredictedPoint;
   /**
-   * The p-value associated with the slope (m) of the regression line.
-   * Indicates the statistical significance of the linear relationship between X and Y.
+   * The p-value associated with the slope.
+   * Indicates the statistical significance of the relationship between X and Y.
    * A small p-value (e.g., < 0.05) suggests a statistically significant trend.
-   * Null if it could not be computed (e.g., due to zero variance or insufficient data for SE_m calculation).
+   * Null if it could not be computed (e.g., insufficient data for SE calculation).
    */
   pValueM?: number | null;
   /**
-   * The standard error of the slope (m). It measures the accuracy of the slope coefficient,
-   * indicating the average distance that the estimated slope is from the true population slope.
+   * The standard error of the slope. Measures the accuracy of the slope coefficient.
    * Null if it could not be computed.
    */
   seM?: number | null;
   /**
-   * The t-statistic for the slope (m). It is calculated as m / seM and is used to determine
-   * the p-value and statistical significance of the slope.
+   * The t-statistic for the slope (slope / seM).
+   * Used to determine p-value and statistical significance.
    * Null if it could not be computed.
    */
   tM?: number | null;
   /**
-   * The degrees of freedom for the regression model's error term.
-   * Used in conjunction with the t-statistic to determine p-values and confidence intervals.
-   * Null if it could not be computed or is not applicable.
+   * Degrees of freedom for the regression model's error term.
+   * Used with the t-statistic to determine p-values and confidence intervals.
+   * Null if not applicable.
    */
   df?: number | null;
 }
-
 
 /**
  * Interface for the error output of regression methods.
  */
 export interface RegressionError {
   ok: false;
+  /**
+   * The statistical method that was attempted, providing context for error interpretation.
+   * Optional — included where the method is known at the point of failure.
+   */
+  method?: "linear" | "logarithmic" | "exponential" | "power" | "polynomial";
   errorType:
     | "InsufficientData"
     | "DegenerateInput"
@@ -83,12 +99,12 @@ export interface RegressionError {
 export type RegressionResult = RegressionSuccess | RegressionError;
 
 /**
- * Represents a predicted data point with an x and predicted y value.
+ * Represents a predicted data point as a [x, predictedY] tuple.
  */
 export type PredictedPoint = [number, number];
 
 /**
- * Represents a data point with an x and y value.
+ * Represents an observed data point as a [x, y] tuple.
  */
 export type DataPoint = [number, number];
 
@@ -97,7 +113,7 @@ export type DataPoint = [number, number];
  */
 export interface RegressionOptions {
   /**
-   * The precision for rounding numerical results.
+   * The number of decimal places to round numerical results to.
    */
   precision: number;
 }

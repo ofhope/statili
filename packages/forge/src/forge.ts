@@ -1,5 +1,5 @@
-import { curry } from "@facta/fp";
-import { linear, type RegressionResult } from "@facta/stats";
+import { curry } from "@statili/fp";
+import { linear, type RegressionResult } from "@statili/stats";
 import type { InsightRule } from "./type";
 
 const DEFAULT_INSIGHTS: InsightRule[] =  []

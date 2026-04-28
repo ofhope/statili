@@ -6,57 +6,54 @@ import type {
   RegressionOptions,
   RegressionResult,
 } from "./types";
-import { rSquared, round, isValid } from "./util";
+import { rSquared, rmse, round, isValid } from "./util";
 
 /**
- * Performs simple linear regression to model the relationship between a dependent variable (y) and an independent variable (x).
- * This algorithm fits a straight line through the data points that minimizes the sum of squared residuals between the observed and predicted y values.
+ * Performs simple linear regression to model the relationship between a dependent variable (y)
+ * and an independent variable (x).
  *
- * @param {Partial<RegressionOptions>} [suppliedOptions] - Optional regression options to override defaults, such as `precision`.
- * @param {DataPoint[]} data - An array of data points, where each `DataPoint` is a tuple `[x, y]`.
- * Expects at least two non-null data points to perform the regression.
- * @returns {RegressionResult} A discriminant union representing the success or failure of the regression.
- * - If successful (`ok: true`), it returns the `points` on the regression line, a `predict` function,
- * the `equation` (gradient and intercept), the `r2` (coefficient of determination), and a `string` representation of the equation.
- * - If unsuccessful (`ok: false`), it provides an `errorType` (e.g., "InsufficientData", "DegenerateInput") and a `message`.
+ * Fits a straight line (y = slope·x + intercept) through the data by minimising the sum of
+ * squared residuals between observed and predicted y values (Ordinary Least Squares).
+ *
+ * @param {Partial<RegressionOptions>} [suppliedOptions] - Optional overrides, e.g. `{ precision: 4 }`.
+ * @param {DataPoint[]} data - Array of `[x, y]` tuples. Requires at least 2 points with distinct x values.
+ * @returns {RegressionResult} Discriminant union:
+ *   - `ok: true`  — includes `slope`, `intercept`, `r2`, `rmse`, `n`, `points`, `predict`.
+ *   - `ok: false` — includes `errorType` and `message` describing why regression failed.
  *
  * @example
  * // Basic usage
- * const data = [[1, 2], [2, 3], [3, 4], [4, 5]];
+ * const data: DataPoint[] = [[1, 2], [2, 3], [3, 4], [4, 5]];
  * const result = linear({}, data);
  * if (result.ok) {
- * console.log(`Regression Equation: ${result.string}`); // "y = 1x + 1"
- * console.log(`R-squared: ${result.r2}`); // ~1
- * console.log(`Predicted Y for X=5: ${result.predict(5)[1]}`); // 6
- * } else {
- * console.error(`Error: ${result.message}`);
+ *   console.log(`slope: ${result.slope}`);       // 1
+ *   console.log(`intercept: ${result.intercept}`); // 1
+ *   console.log(`R²: ${result.r2}`);              // 1
+ *   console.log(`RMSE: ${result.rmse}`);           // 0
+ *   console.log(`n: ${result.n}`);                 // 4
+ *   console.log(`predict(5): ${result.predict(5)[1]}`); // 6
  * }
  *
  * @example
- * // Using custom precision
- * const data = [[1, 2], [2, 3], [3, 4], [4, 5]];
- * const result = linear({ precision: 4 }, data);
+ * // Curried / partial application (data-last for composability)
+ * const regressionWithPrecision = linear({ precision: 4 });
+ * const result = regressionWithPrecision(data);
  *
  * @example
- * // Handling insufficient data
- * const data = [[1, 2]];
- * const result = linear({}, data);
- * // result.ok will be false, result.errorType will be "InsufficientData"
- *
- * @example
- * // Handling vertical line (degenerate input)
- * const data = [[1, 2], [1, 3], [1, 4]];
- * const result = linear({}, data);
- * // result.ok will be false, result.errorType will be "DegenerateInput"
+ * // Handling errors
+ * const vertical: DataPoint[] = [[1, 1], [1, 2], [1, 3]];
+ * const err = linear({}, vertical);
+ * // err.ok === false, err.errorType === "DegenerateInput"
  *
  * @description
- * **Insights derived from Linear Regression:**
- * - **Trend Identification:** Reveals the linear trend between two variables. A positive gradient indicates a positive correlation, a negative gradient indicates a negative correlation.
- * - **Magnitude of Relationship:** The gradient (`m`) quantifies how much the dependent variable (y) changes for every unit increase in the independent variable (x).
- * - **Prediction:** Allows for prediction of the dependent variable's value for a given independent variable's value.
- * - **Goodness of Fit:** The R-squared (`r2`) value indicates how well the regression line fits the observed data, ranging from 0 (no fit) to 1 (perfect fit). [cite_start]A high R-squared suggests the model explains a large proportion of the variance in the dependent variable. [cite: 48]
+ * **Insights derivable from the result (for use by @statili/forge):**
+ * - **Trend direction** — `slope > 0` positive, `slope < 0` negative, `slope ≈ 0` flat.
+ * - **Rate of change** — `slope` quantifies Y change per unit X.
+ * - **Goodness of fit** — `r2` (0–1): higher = better fit.
+ * - **Prediction accuracy** — `rmse` in Y-axis units; enables "predictions within ±X" statements.
+ * - **Sample reliability** — `n` allows warnings for small sample sizes.
+ * - **Future prediction** — `predict(x)` returns `[x, predictedY]` for any x.
  */
-
 export const linear = curry((
   suppliedOptions: Partial<RegressionOptions>,
   data: DataPoint[]
@@ -69,8 +66,9 @@ export const linear = curry((
   if (data.length < 2) {
     return {
       ok: false,
+      method: "linear",
       errorType: "InsufficientData",
-      message: `Linear regression requires at least 2 valid data points (x, y). Received ${data.length}.`,
+      message: `Linear regression requires at least 2 data points. Received ${data.length}.`,
     };
   }
 
@@ -78,7 +76,6 @@ export const linear = curry((
   let sumY = 0;
   let sumX2 = 0;
   let sumXY = 0;
-  let sumY2 = 0;
 
   const len = data.length;
 
@@ -88,6 +85,7 @@ export const linear = curry((
     if (!isValid(x) || !isValid(y)) {
       return {
         ok: false,
+        method: "linear",
         errorType: "InvalidInput",
         message: `Data point at index ${n} contains non-finite values (${x}, ${y}). Linear regression requires finite numerical inputs.`,
       };
@@ -96,46 +94,47 @@ export const linear = curry((
     sumY += y;
     sumX2 += x * x;
     sumXY += x * y;
-    sumY2 += y * y;
   }
 
   const run = len * sumX2 - sumX * sumX;
   const rise = len * sumXY - sumX * sumY;
 
   if (run === 0) {
-    // This implies all x values are the same, leading to a vertical line, which linear regression cannot model.
-    // Or it means len * sum[2] === sum[0] * sum[0], which for non-zero sum[0] implies all x values are the same.
     return {
       ok: false,
+      method: "linear",
       errorType: "DegenerateInput",
       message:
-        "Cannot perform linear regression: all x-values are identical, resulting in a vertical line.",
+        "Cannot perform linear regression: all x-values are identical, resulting in a vertical line. " +
+        "Linear regression requires variation in the independent variable (X).",
     };
   }
 
-  const gradient = round(rise / run, options.precision);
+  const slope = round(rise / run, options.precision);
   const intercept = round(
-    sumY / len - (gradient * sumX) / len,
+    sumY / len - (slope * sumX) / len,
     options.precision
   );
 
   if (
-    isNaN(gradient) ||
-    !isFinite(gradient) ||
+    isNaN(slope) ||
+    !isFinite(slope) ||
     isNaN(intercept) ||
     !isFinite(intercept)
   ) {
     return {
       ok: false,
+      method: "linear",
       errorType: "MathError",
       message:
-        "Linear regression resulted in non-finite coefficients (NaN or Infinity). This can occur with problematic input data, such as extremely large values or an unhandled mathematical edge case.",
+        "Linear regression produced non-finite coefficients (NaN or Infinity). " +
+        "This can occur with extremely large values or other numerical edge cases.",
     };
   }
 
   const predict = (x: number): PredictedPoint => [
     round(x, options.precision),
-    round(gradient * x + intercept, options.precision),
+    round(slope * x + intercept, options.precision),
   ];
 
   const points = data.map((point) => predict(point[0]));
@@ -145,19 +144,25 @@ export const linear = curry((
   if (isNaN(r2)) {
     return {
       ok: false,
+      method: "linear",
       errorType: "MathError",
       message:
-        "R-squared calculation failed or resulted in NaN. This can occur if the dependent variable (y) has no variance (all y-values are identical) or due to other mathematical issues.",
+        "R² calculation failed. This can occur if all y-values are identical (zero variance in Y) " +
+        "or due to other numerical issues.",
     };
   }
 
+  const calculatedRmse = rmse(data, points);
+
   return {
     ok: true,
+    method: "linear",
+    slope,
+    intercept,
+    r2: round(r2, options.precision),
+    rmse: round(calculatedRmse, options.precision),
+    n: len,
     points,
     predict,
-    m: gradient,
-    b: intercept,
-    rSquared: round(r2, options.precision),
-    method: "linear",
   };
-})
+});

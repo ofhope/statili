@@ -1,37 +1,48 @@
 import type { RegressionSuccess } from "@statili/stats";
-import type { GeneratedInsight } from "../types";
+import type { GeneratedInsight, LinearInsightGenerationOptions } from "../types";
+
+const DEFAULT_SMALL_SAMPLE_THRESHOLD = 20;
 
 /**
  * @function regressionSummary
  * @description Generates a natural language summary of the linear regression trend.
- * @param {LinearInsightGenerationOptions} options - Configuration options for insight generation.
+ *
+ * Describes the direction of the relationship (positive / negative / flat) and enriches
+ * the insight `data` payload with the key coefficients, fit metrics, and sample size so
+ * that downstream consumers (e.g. chart renderers) have everything they need without
+ * re-accessing the raw stats result.
+ *
  * @param {RegressionSuccess} result - The successful result from @statili/stats linear regression.
- * @returns {GeneratedInsight} A descriptive insight about the trend.
+ * @param {LinearInsightGenerationOptions} [options] - Optional configuration (e.g. smallSampleThreshold).
+ * @returns {GeneratedInsight} A descriptive insight about the linear trend.
  */
-export const regressionSummary = (result: RegressionSuccess): GeneratedInsight => {
-    const { m, b } = result;
-    let summary = '';
-    let chartAnnotations: string[] = [`drawTrendLine:${m},${b}`];
+export const regressionSummary = (
+  result: RegressionSuccess,
+  options: LinearInsightGenerationOptions = {}
+): GeneratedInsight => {
+  const { slope, intercept, rmse, n } = result;
+  const smallSampleThreshold = options.smallSampleThreshold ?? DEFAULT_SMALL_SAMPLE_THRESHOLD;
 
-    if (m > 0) {
-        summary = `There is a positive linear trend. As X increases, Y tends to increase.`;
-    } else if (m < 0) {
-        summary = `There is a negative linear trend. As X increases, Y tends to decrease.`;
-    } else {
-        summary = `There is no significant linear trend. Y remains relatively constant as X changes.`;
-    }
+  let summary: string;
 
-    // Add more detail based on p-values if available
-    // if (result.pValueM !== undefined && result.pValueM < (options.pValueSignificanceLevel || 0.05)) {
-    //     summary += ` The trend is statistically significant (p < ${(options.pValueSignificanceLevel || 0.05)}).`;
-    // } else if (result.pValueM !== undefined) {
-    //     summary += ` The trend is not statistically significant (p > ${(options.pValueSignificanceLevel || 0.05)}).`;
-    // }
+  if (slope > 0) {
+    summary = `There is a positive linear trend. As X increases, Y tends to increase.`;
+  } else if (slope < 0) {
+    summary = `There is a negative linear trend. As X increases, Y tends to decrease.`;
+  } else {
+    summary = `There is no significant linear trend. Y remains relatively constant as X changes.`;
+  }
 
-    return {
-        summary,
-        type: 'TrendDescription',
-        data: { m, b },
-        annotations: chartAnnotations
-    };
+  const annotations: string[] = [`drawTrendLine:${slope},${intercept}`];
+
+  if (n < smallSampleThreshold) {
+    annotations.push(`smallSampleWarning:n=${n}`);
+  }
+
+  return {
+    summary,
+    type: "TrendDescription",
+    data: { slope, intercept, rmse, n },
+    annotations,
+  };
 };
