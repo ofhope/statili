@@ -5,12 +5,12 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'src/index.ts',
-      name: 'FactaForge',
+      name: 'statili',
       fileName: 'forge',
       formats: ['es']
     },
     rollupOptions: {
-      external: ['@facta/fp'],
+      external: ['@statili/fp', '@statili/stats'],
     },
     sourcemap: true,
     minify: false,

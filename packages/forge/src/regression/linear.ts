@@ -1,5 +1,5 @@
-import type { RegressionResult } from "@facta/stats";
-import type { GeneratedInsight, InsightResultError, InsightResultSuccess, LinearInsightGenerationOptions } from "src/types";
+import type { RegressionResult } from "@statili/stats";
+import type { GeneratedInsight, InsightResultError, InsightResultSuccess, LinearInsightGenerationOptions } from "../types";
 import { regressionError } from "./regressionError";
 import { regressionSummary } from "./summary";
 import { correlationStrength } from "./correlation";
@@ -9,9 +9,9 @@ export type LinearInsightsOutput = InsightResultSuccess | InsightResultError;
 /**
  * @function linearRegressionInsights
  * @description Orchestrates the generation of various insights from a linear regression result.
- * This function acts as the primary entry point for linear regression insight generation in @facta/forge.
+ * This function acts as the primary entry point for linear regression insight generation in @statili/forge.
  * @param {LinearInsightGenerationOptions} options - Configuration options for the insights.
- * @param {LinearRegressionResult} statsResult - The raw result from @facta/stats.linear.
+ * @param {LinearRegressionResult} statsResult - The raw result from @statili/stats.linear.
  * @returns {LinearInsightsOutput} A discriminant union containing either an array of insights or a user-friendly error.
  */
 export function linearRegressionInsights(

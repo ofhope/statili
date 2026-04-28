@@ -1,10 +1,10 @@
-import type { RegressionError } from "@facta/stats";
-import type { InsightResultError } from "src/types";
+import type { RegressionError } from "@statili/stats";
+import type { InsightResultError } from "../types";
 
 /**
  * @function regressionError
- * @description Translates a technical @facta/stats error into a user-friendly insight error.
- * @param {LinearRegressionErrorResult} errorResult - The error result from @facta/stats linear regression.
+ * @description Translates a technical @statili/stats error into a user-friendly insight error.
+ * @param {LinearRegressionErrorResult} errorResult - The error result from @statili/stats linear regression.
  * @returns {InsightResultError} A user-friendly error object.
  */
 export const regressionError = (errorResult: RegressionError): InsightResultError => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { regressionError } from "./regressionError";
-import type { RegressionError } from "@facta/stats";
+import type { RegressionError } from "@statili/stats";
 const createMockRegressionError = (
   errorType: RegressionError["errorType"],
   message: string = "Error"

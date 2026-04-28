@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { RegressionSuccess } from '@facta/stats';
+import type { RegressionSuccess } from '@statili/stats';
 import { correlationStrength } from "./correlation";
 import type { LinearInsightGenerationOptions } from "../types";
 

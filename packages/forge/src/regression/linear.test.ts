@@ -1,5 +1,5 @@
 import { describe, it, expect} from "vitest";
-import type { RegressionSuccess, RegressionError } from '@facta/stats';
+import type { RegressionSuccess, RegressionError } from '@statili/stats';
 import { linearRegressionInsights } from "./linear";
 
 // Mock data generators for testing

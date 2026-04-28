@@ -1,6 +1,7 @@
 {
-  "name": "@facta/fp",
+  "name": "@statili/fp",
   "version": "0.0.1",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/fp.js",
   "types": "./dist/fp.d.ts",

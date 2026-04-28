@@ -1,4 +1,4 @@
-import { curry } from "@facta/fp";
+import { curry } from "@statili/fp";
 import { DEFAULT_OPTIONS } from "./const";
 import type {
   DataPoint,

@@ -1,13 +1,13 @@
-import { curry } from "@facta/fp";
-import type { RegressionSuccess } from "@facta/stats";
-import type { GeneratedInsight, LinearInsightGenerationOptions } from "src/types";
+import { curry } from "@statili/fp";
+import type { RegressionSuccess } from "@statili/stats";
+import type { GeneratedInsight, LinearInsightGenerationOptions } from "../types";
 
 
 /**
  * @function generateCorrelationStrengthInsight
  * @description Generates an insight regarding the strength of the linear correlation based on R-squared.
  * @param {LinearInsightGenerationOptions} options - Configuration options for insight generation.
- * @param {LinearRegressionSuccessResult} result - The successful result from @facta/stats linear regression.
+ * @param {LinearRegressionSuccessResult} result - The successful result from @statili/stats linear regression.
  * @returns {GeneratedInsight} An insight about correlation strength.
  */
 export const correlationStrength = curry((options: LinearInsightGenerationOptions, result: RegressionSuccess): GeneratedInsight => {

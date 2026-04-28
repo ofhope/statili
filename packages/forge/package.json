@@ -1,6 +1,7 @@
 {
-    "name": "@facta/forge",
+    "name": "@statili/forge",
     "version": "0.0.1",
+    "license": "MIT",
     "type": "module",
     "main": "./dist/forge.js",
     "types": "./dist/forge.d.ts",
@@ -20,7 +21,8 @@
         "clean": "rimraf dist"
     },
     "dependencies": {
-        "@facta/fp": "*"
+        "@statili/fp": "*",
+        "@statili/stats": "*"
     },
     "devDependencies": {
         "vite": "^5.0.0",
