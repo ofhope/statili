@@ -1,77 +1,53 @@
-/**
- * Configuration options for linear regression insight generation.
- * All thresholds are optional — sensible defaults are applied when omitted.
- */
-export interface LinearInsightGenerationOptions {
-  /**
-   * R² value below which the correlation is considered weak.
-   * @default 0.3
-   */
+interface CommonInsightOptions {
   rSquaredThresholdWeak?: number;
-  /**
-   * R² value at or above which the correlation is considered strong.
-   * @default 0.7
-   */
   rSquaredThresholdStrong?: number;
-  /**
-   * Alpha level for statistical significance testing on the slope p-value.
-   * @default 0.05
-   */
-  pValueSignificanceLevel?: number;
-  /**
-   * Z-score threshold beyond which a residual is flagged as an outlier.
-   * @default 3
-   */
-  outlierZScoreThreshold?: number;
-  /**
-   * Sample size below which a small-sample warning is included in the insights.
-   * @default 20
-   */
   smallSampleThreshold?: number;
 }
 
-/**
- * A single generated insight from @statili/forge.
- */
+export interface LinearInsightGenerationOptions extends CommonInsightOptions {
+  pValueSignificanceLevel?: number;
+  outlierZScoreThreshold?: number;
+}
+
+export interface PolynomialInsightGenerationOptions extends CommonInsightOptions {
+  /** Ratio degree/n above which an overfit warning fires. @default 0.33 */
+  overfitRatioThreshold?: number;
+}
+
+export interface PowerInsightGenerationOptions extends CommonInsightOptions {
+  /** |b - 1| below this => near-linear. @default 0.1 */
+  nearLinearThreshold?: number;
+}
+
+export interface LogarithmicInsightGenerationOptions extends CommonInsightOptions {}
+
+export interface MultilinearInsightGenerationOptions extends CommonInsightOptions {}
+
+export interface LogisticInsightGenerationOptions {
+  /** Accuracy below this triggers a warning. @default 0.7 */
+  accuracyWarningThreshold?: number;
+  /** McFadden pseudo-R2 threshold (weak). @default 0.2 */
+  pseudoR2ThresholdWeak?: number;
+  /** McFadden pseudo-R2 threshold (strong). @default 0.4 */
+  pseudoR2ThresholdStrong?: number;
+  smallSampleThreshold?: number;
+}
+
 export type GeneratedInsight = {
-  /**
-   * A concise, human-readable summary of the insight, suitable for display to end-users.
-   */
   summary: string;
-  /**
-   * Programmatic type identifier for this insight, enabling conditional UI rendering.
-   * Examples: 'TrendDescription', 'CorrelationStrength', 'OutlierWarning', 'SmallSampleWarning'.
-   */
   type: string;
-  /**
-   * Structured data related to this insight, for downstream use (e.g. chart annotation logic).
-   */
   data?: Record<string, unknown>;
-  /**
-   * Optional array of annotation instructions for charting libraries.
-   * Example: `["drawTrendLine:1.5,2.3"]`
-   */
   annotations?: string[];
 };
 
-/**
- * Successful output from an insight generation function.
- */
 export type InsightResultSuccess = {
   ok: true;
   insights: GeneratedInsight[];
 };
 
-/**
- * Error output from an insight generation function.
- * Translates a technical @statili/stats error into user-facing language.
- */
 export type InsightResultError = {
   ok: false;
-  /** User-facing explanation of why insights could not be generated. */
   message: string;
-  /** Actionable suggestion for the user to resolve the issue. */
   helpText: string;
-  /** The original `errorType` from @statili/stats, retained for debugging. */
   originalErrorType: string;
 };

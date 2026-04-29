@@ -8,7 +8,7 @@ export interface StatsPanelProps {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const card: React.CSSProperties = {
-  width: 220,
+  width: 240,
   border: "1px solid #e5e7eb",
   borderRadius: 8,
   overflow: "hidden",
@@ -66,6 +66,30 @@ const equationBox: React.CSSProperties = {
   fontFamily: "ui-monospace, monospace",
   fontSize: 12,
   color: "#374151",
+  wordBreak: "break-word" as const,
+};
+
+const coeffBox: React.CSSProperties = {
+  padding: "8px 14px 12px",
+  borderTop: "1px solid #e5e7eb",
+};
+
+const coeffLabel: React.CSSProperties = {
+  fontSize: 11,
+  color: "#6b7280",
+  fontWeight: 500,
+  marginBottom: 6,
+};
+
+const coeffChip: React.CSSProperties = {
+  display: "inline-block",
+  background: "#f3f4f6",
+  color: "#374151",
+  fontFamily: "ui-monospace, monospace",
+  fontSize: 11,
+  padding: "2px 7px",
+  borderRadius: 4,
+  margin: "2px 3px 2px 0",
 };
 
 const errorCard: React.CSSProperties = {
@@ -100,40 +124,93 @@ const errorMessage: React.CSSProperties = {
 // ─── R² bar ───────────────────────────────────────────────────────────────────
 
 function R2Bar({ value }: { value: number }) {
-  const pct = Math.max(0, Math.min(1, value)) * 100;
-  const color =
-    value >= 0.7 ? "#22c55e" : value >= 0.3 ? "#f59e0b" : "#ef4444";
+  const pct   = Math.max(0, Math.min(1, value)) * 100;
+  const color = value >= 0.7 ? "#22c55e" : value >= 0.3 ? "#f59e0b" : "#ef4444";
 
   return (
     <div style={{ padding: "0 14px 10px" }}>
-      <div
-        style={{
-          height: 4,
-          background: "#f3f4f6",
-          borderRadius: 2,
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            height: "100%",
-            width: `${pct}%`,
-            background: color,
-            borderRadius: 2,
-            transition: "width 0.3s ease",
-          }}
-        />
+      <div style={{ height: 4, background: "#f3f4f6", borderRadius: 2, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 2, transition: "width 0.3s ease" }} />
       </div>
     </div>
   );
 }
 
+// ─── Equation formatter ───────────────────────────────────────────────────────
+
+function formatEquation(result: Extract<RegressionResult, { ok: true }>): string {
+  if (result.equation) return result.equation;
+
+  const { method, slope, intercept } = result;
+
+  if (method === "linear") {
+    const sign = intercept < 0 ? "−" : "+";
+    return `y = ${slope}x ${sign} ${Math.abs(intercept)}`;
+  }
+  if (method === "power") {
+    return `y = ${intercept}x^${slope}`;
+  }
+  if (method === "logarithmic") {
+    const sign = slope < 0 ? "−" : "+";
+    return `y = ${intercept} ${sign} ${Math.abs(slope)}·ln(x)`;
+  }
+  if (method === "exponential") {
+    return `y = ${intercept}e^(${slope}x)`;
+  }
+  return `slope: ${slope}, intercept: ${intercept}`;
+}
+
+// ─── Method-specific row builder ──────────────────────────────────────────────
+
+function buildRows(result: Extract<RegressionResult, { ok: true }>): [string, string | number][] {
+  const { method, r2, rmse, n } = result;
+  const commonTail: [string, string | number][] = [
+    ["R²", r2],
+    ["RMSE", rmse],
+    ["n", n],
+  ];
+
+  if (method === "polynomial") {
+    return [
+      ["Degree", result.degree ?? "—"],
+      ...commonTail,
+    ];
+  }
+  if (method === "power") {
+    return [
+      ["Scale (a)", result.intercept],
+      ["Exponent (b)", result.slope],
+      ...commonTail,
+    ];
+  }
+  if (method === "logarithmic") {
+    return [
+      ["Constant (a)", result.intercept],
+      ["ln Coeff (b)", result.slope],
+      ...commonTail,
+    ];
+  }
+  if (method === "exponential") {
+    return [
+      ["Scale (a)", result.intercept],
+      ["Growth (b)", result.slope],
+      ...commonTail,
+    ];
+  }
+  // Default: linear
+  return [
+    ["Slope", result.slope],
+    ["Intercept", result.intercept],
+    ...commonTail,
+  ];
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 /**
- * Renders the raw `RegressionResult` from `@statili/stats` as a compact
- * stats card — showing method, slope, intercept, R², RMSE, n, and the
- * formatted equation string. Errors are rendered as a distinct red card.
+ * Renders the raw `RegressionResult` from `@statili/stats` as a compact stats card.
+ * Adapts its row layout based on `result.method` — displaying degree for polynomial,
+ * scale+exponent for power, etc.
  */
 export function StatsPanel({ result }: StatsPanelProps) {
   if (!result.ok) {
@@ -150,24 +227,14 @@ export function StatsPanel({ result }: StatsPanelProps) {
     );
   }
 
-  const { method, slope, intercept, r2, rmse, n } = result;
-
-  const sign = intercept < 0 ? "−" : "+";
-  const equation = `y = ${slope}x ${sign} ${Math.abs(intercept)}`;
-
-  const rows: [string, string | number][] = [
-    ["Slope", slope],
-    ["Intercept", intercept],
-    ["R²", r2],
-    ["RMSE", rmse],
-    ["n", n],
-  ];
+  const rows     = buildRows(result);
+  const equation = formatEquation(result);
 
   return (
     <div style={card}>
       <div style={header}>
         <span>Stats Result</span>
-        <span style={methodBadge}>{method}</span>
+        <span style={methodBadge}>{result.method}</span>
       </div>
 
       <table style={table}>
@@ -177,9 +244,7 @@ export function StatsPanel({ result }: StatsPanelProps) {
               <td style={tdLabel}>{label}</td>
               <td style={tdValue}>
                 {typeof value === "number"
-                  ? Number.isInteger(value)
-                    ? value
-                    : value.toFixed(4)
+                  ? Number.isInteger(value) ? value : value.toFixed(4)
                   : value}
               </td>
             </tr>
@@ -187,7 +252,17 @@ export function StatsPanel({ result }: StatsPanelProps) {
         </tbody>
       </table>
 
-      <R2Bar value={r2} />
+      <R2Bar value={result.r2} />
+
+      {/* Polynomial: show full coefficients vector */}
+      {result.method === "polynomial" && result.coefficients && (
+        <div style={coeffBox}>
+          <div style={coeffLabel}>Coefficients (c₀ → cₙ)</div>
+          {result.coefficients.map((c, i) => (
+            <code key={i} style={coeffChip}>c{i}={c}</code>
+          ))}
+        </div>
+      )}
 
       <div style={equationBox}>{equation}</div>
     </div>

@@ -16,10 +16,13 @@
     "typecheck": "tsc --build"
   },
   "devDependencies": {
+    "rimraf": "^5.0.0",
     "typescript": "^5.0.0",
     "vite": "^5.0.0",
     "vite-plugin-dts": "^3.0.0",
-    "vitest": "^3.2.4",
-    "rimraf": "^5.0.0"
+    "vitest": "^3.2.4"
+  },
+  "optionalDependencies": {
+    "@esbuild/win32-x64": "^0.28.0"
   }
 }

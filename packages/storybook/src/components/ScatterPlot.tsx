@@ -126,13 +126,21 @@ export function ScatterPlot({
       .attr("font-size", 12)
       .text(yLabel);
 
-    // ── Regression line (drawn before points so it sits underneath) ───────
+    // ── Regression curve (drawn before points so it sits underneath) ──────
     if (result?.ok) {
-      const [x0, x1] = xScale.domain();
-      const lineData: [number, number][] = [
-        [x0, result.predict(x0)[1]],
-        [x1, result.predict(x1)[1]],
-      ];
+      const [x0Raw, x1] = xScale.domain();
+
+      // power and logarithmic require x > 0; clamp domain start if needed
+      const needsPositiveX = result.method === "logarithmic" || result.method === "power";
+      const x0 = needsPositiveX ? Math.max(x0Raw, 1e-3) : x0Raw;
+
+      // Linear gets 2 exact points; all curved methods get 120 interpolated points
+      const N = result.method === "linear" ? 2 : 120;
+      const curveData: [number, number][] = Array.from({ length: N }, (_, i) => {
+        const x = N === 2 ? (i === 0 ? x0 : x1) : x0 + (i / (N - 1)) * (x1 - x0);
+        const y = result.predict(x)[1];
+        return [x, y] as [number, number];
+      }).filter(([, y]) => Number.isFinite(y) && !isNaN(y));
 
       const lineGenerator = d3
         .line<[number, number]>()
@@ -140,7 +148,7 @@ export function ScatterPlot({
         .y((d) => yScale(d[1]));
 
       g.append("path")
-        .datum(lineData)
+        .datum(curveData)
         .attr("d", lineGenerator)
         .attr("stroke", LINE_STROKE)
         .attr("stroke-width", 2)
