@@ -5,12 +5,9 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'src/index.ts',
-      name: 'statiliStats',
-      fileName: 'stats',
-      formats: ['es']
-    },
-    rollupOptions: {
-      external: ['@statili/fp', '@statili/math'],
+      name: 'statiliMath',
+      fileName: 'math',
+      formats: ['es'],
     },
     sourcemap: true,
     minify: false,
@@ -18,10 +15,8 @@ export default defineConfig({
   plugins: [
     dts({
       insertTypesEntry: true,
-      exclude: [
-        '**/*.test.ts'
-      ],
-      rollupTypes: true
-    })
+      exclude: ['**/*.test.ts'],
+      rollupTypes: true,
+    }),
   ],
 });

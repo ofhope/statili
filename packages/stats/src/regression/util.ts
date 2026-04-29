@@ -1,13 +1,17 @@
 import type { DataPoint, PredictedPoint } from "./types";
+import { round as _round, isFiniteNumber, gaussianElimination } from "@statili/math";
 
+// Re-export math primitives so existing internal callers within @statili/stats
+// that import from "./util" continue to work without changes.
+export { isFiniteNumber as isValid, gaussianElimination };
+
+/**
+ * Rounds a number to `precision` decimal places.
+ * Thin wrapper over `@statili/math`'s `round` that restores the original
+ * two-argument order `(value, precision)` used throughout this package.
+ */
 export function round(number: number, precision: number): number {
-  if (precision === undefined || precision === null || !Number.isFinite(precision)) return number;
-  const factor = 10 ** precision;
-  return Math.round(number * factor) / factor;
-}
-
-export function isValid(value: number): boolean {
-  return value !== null && !isNaN(value) && isFinite(value);
+  return _round(precision, number);
 }
 
 export function rSquared(data: DataPoint[], results: PredictedPoint[]): number {
@@ -51,39 +55,4 @@ export function rmseFromYValues(actualY: number[], predictedY: number[]): number
   if (n === 0) return NaN;
   const sse = actualY.reduce((s, y, i) => s + (y - predictedY[i]) ** 2, 0);
   return Math.sqrt(sse / n);
-}
-
-/**
- * Solves Ax=b via Gaussian elimination with partial pivoting.
- * @param input  Augmented matrix [A|b] in row-major form (n rows x n+1 cols).
- * @param order  Number of unknowns (= number of rows).
- * @returns Solution vector, or array of NaN if singular.
- */
-export function gaussianElimination(input: number[][], order: number): number[] {
-  const matrix = input.map(row => [...row]);
-  const n = matrix.length;
-  const coefficients: number[] = new Array(order);
-
-  for (let i = 0; i < n; i++) {
-    let maxRow = i;
-    for (let j = i + 1; j < n; j++) {
-      if (Math.abs(matrix[j][i]) > Math.abs(matrix[maxRow][i])) maxRow = j;
-    }
-    [matrix[i], matrix[maxRow]] = [matrix[maxRow], matrix[i]];
-
-    for (let j = i + 1; j < n; j++) {
-      if (matrix[i][i] === 0) return new Array(order).fill(NaN);
-      const factor = matrix[j][i] / matrix[i][i];
-      for (let k = i; k <= n; k++) matrix[j][k] -= factor * matrix[i][k];
-    }
-  }
-
-  for (let j = n - 1; j >= 0; j--) {
-    if (matrix[j][j] === 0) return new Array(order).fill(NaN);
-    let total = 0;
-    for (let k = j + 1; k < n; k++) total += matrix[j][k] * coefficients[k];
-    coefficients[j] = (matrix[j][n] - total) / matrix[j][j];
-  }
-
-  return coefficients;
 }

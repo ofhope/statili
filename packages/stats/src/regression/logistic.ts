@@ -1,4 +1,5 @@
 import { curry } from "@statili/fp";
+import { sigmoid } from "@statili/math";
 import type {
   LogisticRegressionOptions,
   MultiDataPoint,
@@ -12,14 +13,6 @@ const DEFAULT_LOGISTIC_OPTIONS: LogisticRegressionOptions = {
   iterations: 1000,
   precision: 4,
 };
-
-/**
- * Sigmoid (logistic) activation function σ(z) = 1 / (1 + e⁻ᶻ).
- * Maps any real number to the open interval (0, 1).
- */
-function sigmoid(z: number): number {
-  return 1 / (1 + Math.exp(-z));
-}
 
 /**
  * Performs binary logistic regression via batch gradient descent.

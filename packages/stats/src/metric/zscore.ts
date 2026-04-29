@@ -1,3 +1,5 @@
+import { mean, standardDeviation } from "@statili/math";
+
 /**
  * Represents the successful result of a Z-score calculation for a single data point.
  */
@@ -72,32 +74,25 @@ export function calculateZScore(
 
 /**
  * Calculates the mean (average) of a numerical dataset.
+ * Delegates to `@statili/math` for the computation.
  *
  * @param data The array of numerical data points.
  * @returns The mean of the dataset, or NaN if the array is empty.
  */
 export function calculateMean(data: number[]): number {
-  if (data.length === 0) {
-    return NaN;
-  }
-  return data.reduce((sum, val) => sum + val, 0) / data.length;
+  return mean(data);
 }
 
 /**
  * Calculates the sample standard deviation of a numerical dataset.
- * This uses the 'n-1' correction (Bessel's correction) which is commonly used
- * when the standard deviation is estimated from a sample rather than a whole population.
+ * Uses the 'n-1' correction (Bessel's correction).
+ * Delegates to `@statili/math` for the computation.
  *
  * @param data The array of numerical data points.
  * @returns The sample standard deviation of the dataset, or NaN if the array has less than 2 elements.
  */
 export function calculateStandardDeviation(data: number[]): number {
-  if (data.length < 2) {
-    return NaN; // Standard deviation is undefined or meaningless for less than 2 data points.
-  }
-  const mean = calculateMean(data);
-  const sumOfSquares = data.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0);
-  return Math.sqrt(sumOfSquares / (data.length - 1));
+  return standardDeviation(data);
 }
 
 /**
@@ -159,10 +154,10 @@ export function getZScoresForDataset(data: number[]): DatasetZScoreResult {
     };
   }
 
-  const mean = calculateMean(data);
-  const stdDev = calculateStandardDeviation(data);
+  const m = mean(data);
+  const stdDev = standardDeviation(data);
 
-  if (isNaN(stdDev) || stdDev === 0) { // stdDev will be NaN if data.length < 2, but we've handled that. Check for zero specifically here.
+  if (isNaN(stdDev) || stdDev === 0) {
     return {
       ok: false,
       errorType: "NoVariance",
@@ -170,12 +165,12 @@ export function getZScoresForDataset(data: number[]): DatasetZScoreResult {
     };
   }
 
-  const zScores: ZScoreResult[] = data.map(val => calculateZScore(val, mean, stdDev));
+  const zScores: ZScoreResult[] = data.map(val => calculateZScore(val, m, stdDev));
 
   return {
     ok: true,
     zScores,
-    mean,
+    mean: m,
     stdDev,
   };
 }

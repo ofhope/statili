@@ -1,14 +1,14 @@
 {
-    "name": "@statili/stats",
-    "version": "0.0.2-beta.0",
+    "name": "@statili/math",
+    "version": "0.0.1-beta.0",
     "license": "MIT",
     "type": "module",
-    "main": "./dist/stats.js",
-    "types": "./dist/stats.d.ts",
+    "main": "./dist/math.js",
+    "types": "./dist/math.d.ts",
     "exports": {
         ".": {
-            "import": "./dist/stats.js",
-            "types": "./dist/stats.d.ts"
+            "import": "./dist/math.js",
+            "types": "./dist/math.d.ts"
         }
     },
     "files": [
@@ -19,10 +19,6 @@
         "test": "vitest",
         "dev": "vite build --watch",
         "clean": "rimraf dist"
-    },
-    "dependencies": {
-        "@statili/fp": "*",
-        "@statili/math": "*"
     },
     "devDependencies": {
         "vite": "^5.0.0",
