@@ -1,6 +1,6 @@
 {
     "name": "@statili/forge",
-    "version": "0.0.1",
+    "version": "0.0.2-beta.0",
     "license": "MIT",
     "type": "module",
     "main": "./dist/forge.js",

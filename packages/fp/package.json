@@ -1,6 +1,6 @@
 {
   "name": "@statili/fp",
-  "version": "0.0.1",
+  "version": "0.0.2-beta.0",
   "license": "MIT",
   "type": "module",
   "main": "./dist/fp.js",
